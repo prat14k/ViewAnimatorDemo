@@ -45,24 +45,51 @@ class ViewController: UIViewController {
         case .began:
             startPanning()
             print("panning started")
-            break
+//            break
         case .changed:
             scrubEffect(translation)
             print("panning changed")
-            break
+//            break
         case .ended:
+            let velocity = gesture.velocity(in: self.view.superview)
+            endAnimation(translation: translation, velocity: velocity)
             print("panning ended")
-            break
+//            break
         case .cancelled:
             print("panning cancelled")
-            break;
+//            break;
         case .failed:
             print("panning failed")
-            break
+//            break
         case .possible:
             print("panning possible")
-            break
+//            break
         }
+    }
+    
+    
+    func endAnimation(translation : CGPoint , velocity : CGPoint){
+        
+        if let animator = self.propertyAnimator {
+            let screenHght = self.view.frame.size.height
+            if currentState == AnimationState.thumbNail {
+                if translation.y <= -screenHght/3 || velocity.y <= -100 {
+                    animator.isReversed = false
+                    
+                }
+            }
+            else{
+                
+            }
+            
+            let vector = CGVector(dx: velocity.x / 100, dy: velocity.y / 100)
+            let springParameters = UISpringTimingParameters(dampingRatio: 0.8, initialVelocity: vector)
+            
+            propertyAnimator.continueAnimation(withTimingParameters: springParameters, durationFactor: 1)
+            
+            
+        }
+        
     }
     
     
@@ -70,12 +97,12 @@ class ViewController: UIViewController {
         var finalFrame : CGRect
         var alphaVal : CGFloat
         if currentState == AnimationState.thumbNail {
-            finalFrame = thumbNailFrame
-            alphaVal = 0
-        }
-        else{
             finalFrame = view.frame
             alphaVal = 1
+        }
+        else{
+            finalFrame = thumbNailFrame
+            alphaVal = 0
         }
         
         propertyAnimator = UIViewPropertyAnimator(duration: 1, dampingRatio: 0.8, animations: { 
