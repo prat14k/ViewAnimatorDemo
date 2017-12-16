@@ -71,15 +71,39 @@ class ViewController: UIViewController {
     func endAnimation(translation : CGPoint , velocity : CGPoint){
         
         if let animator = self.propertyAnimator {
+            panGesture.isEnabled = false
             let screenHght = self.view.frame.size.height
             if currentState == AnimationState.thumbNail {
                 if translation.y <= -screenHght/3 || velocity.y <= -100 {
                     animator.isReversed = false
-                    
+                    animator.addCompletion({ (position : UIViewAnimatingPosition) in
+                        self.currentState = AnimationState.fullScreen
+                        self.panGesture.isEnabled = true
+                    })
+                }
+                else{
+                    animator.isReversed = true
+                    animator.addCompletion({ (position : UIViewAnimatingPosition) in
+                        self.currentState = AnimationState.thumbNail
+                        self.panGesture.isEnabled = true
+                    })
                 }
             }
             else{
-                
+                if translation.y >= screenHght/3 || velocity.y >= 100 {
+                    animator.isReversed = false
+                    animator.addCompletion({ (position : UIViewAnimatingPosition) in
+                        self.currentState = AnimationState.thumbNail
+                        self.panGesture.isEnabled = true
+                    })
+                }
+                else{
+                    animator.isReversed = true
+                    animator.addCompletion({ (position : UIViewAnimatingPosition) in
+                        self.currentState = AnimationState.fullScreen
+                        self.panGesture.isEnabled = true
+                    })
+                }
             }
             
             let vector = CGVector(dx: velocity.x / 100, dy: velocity.y / 100)
